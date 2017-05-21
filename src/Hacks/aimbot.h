@@ -10,6 +10,7 @@ namespace Aimbot
 {
 	extern bool aimStepInProgress;
 	extern std::vector<int64_t> friends;
+	extern int bestTarget;
 
 	void RCS(QAngle& angle, C_BasePlayer* player, CUserCmd* cmd);
 	void AimStep(C_BasePlayer* player, QAngle& angle, CUserCmd* cmd);
@@ -20,6 +21,7 @@ namespace Aimbot
 	void AutoShoot(C_BasePlayer* player, C_BaseCombatWeapon* activeWeapon, CUserCmd* cmd);
 	void ShootCheck(C_BaseCombatWeapon* activeWeapon, CUserCmd* cmd);
 	void NoShoot(C_BaseCombatWeapon* activeWeapon, C_BasePlayer* player, CUserCmd* cmd);
+	void AutoCockRevolver( C_BaseCombatWeapon* activeWeapon, C_BasePlayer* localplayer, CUserCmd* cmd);
 
 	void CreateMove(CUserCmd* cmd);
 	void FireGameEvent(IGameEvent* event);
