@@ -53,7 +53,10 @@ enum class AntiAimType_Y : int
 {
 	SPIN_SLOW,
 	SPIN_FAST,
+	SPIN_RANDOM,
 	JITTER,
+	CASUALJITTER,
+	RANDOMBACKJITTER,
 	BACKJITTER,
 	SIDE,
 	BACKWARDS,
@@ -69,6 +72,8 @@ enum class AntiAimType_Y : int
 	ANGEL_BACKWARD,
 	ANGEL_INVERSE,
 	ANGEL_SPIN,
+	LOWERBODY,
+	LBYJITTER
 };
 
 enum class AntiAimType_X : int
@@ -144,27 +149,30 @@ enum class SpammerType : int
 
 struct AimbotWeapon_t
 {
-	bool enabled, silent, friendly;
+	bool enabled, silent, pSilent, friendly, closestBone, hitScan;
 	Bone bone;
 	SmoothType smoothType;
 	ButtonCode_t aimkey;
-	bool aimkeyOnly, smoothEnabled, smoothSaltEnabled, errorMarginEnabled, autoAimEnabled, aimStepEnabled, rcsEnabled, rcsAlwaysOn;
-	float smoothAmount, smoothSaltMultiplier, errorMarginValue, autoAimFov, aimStepValue, rcsAmountX, rcsAmountY, autoWallValue, autoSlowMinDamage;
-	bool autoPistolEnabled, autoShootEnabled, autoScopeEnabled, noShootEnabled, ignoreJumpEnabled, smokeCheck, flashCheck, autoWallEnabled, autoWallBones[6], autoAimRealDistance, autoSlow, predEnabled;
+	bool aimkeyOnly, smoothEnabled, smoothSaltEnabled, errorMarginEnabled, autoAimEnabled, aimStepEnabled, rcsEnabled, rcsAlwaysOn, rcsAdaptive;
+	float smoothAmount, smoothSaltMultiplier, errorMarginValue, autoAimFov, aimStepValue, rcsAmountX, rcsAmountY, autoWallValue, autoSlowMinDamage, rcsAdaptiveSpeed, rcsAdaptiveLimit,  spreadLimitValue, killTimeoutValue;
+	bool autoCockRevolver, autoPistolEnabled, autoShootEnabled, autoScopeEnabled, noShootEnabled, ignoreJumpEnabled, smokeCheck, flashCheck, autoWallEnabled, autoWallBones[6], autoAimRealDistance, autoSlow, spreadLimitEnabled, targetLockEnabled, killTimeoutEnabled, predEnabled;
 
-	AimbotWeapon_t(bool enabled, bool silent, bool friendly, Bone bone, ButtonCode_t aimkey, bool aimkeyOnly,
+	AimbotWeapon_t(bool enabled, bool silent, bool pSilent, bool friendly, bool closestBone, bool hitScan, Bone bone, ButtonCode_t aimkey, bool aimkeyOnly,
 		   bool smoothEnabled, float smoothValue, SmoothType smoothType, bool smoothSaltEnabled, float smoothSaltMultiplier,
 		   bool errorMarginEnabled, float errorMarginValue,
 		   bool autoAimEnabled, float autoAimValue, bool aimStepEnabled, float aimStepValue,
-		   bool rcsEnabled, bool rcsAlwaysOn, float rcsAmountX, float rcsAmountY,
-		   bool autoPistolEnabled, bool autoShootEnabled, bool autoScopeEnabled,
+		   bool rcsEnabled, bool rcsAlwaysOn, float rcsAmountX, float rcsAmountY, bool rcsAdaptive, float rcsAdaptiveSpeed, float rcsAdaptiveLimit,
+		   bool autoCockRevolver, bool autoPistolEnabled, bool autoShootEnabled, bool autoScopeEnabled,
 		   bool noShootEnabled, bool ignoreJumpEnabled, bool smokeCheck, bool flashCheck,
 		   bool autoWallEnabled, float autoWallValue, bool autoAimRealDistance, bool autoSlow,
-		   float autoSlowMinDamage, bool predEnabled, bool autoWallBones[6] = nullptr)
+		   float autoSlowMinDamage, bool spreadLimitEnabled, float spreadLimitValue, bool targetLockEnabled, bool killTimeoutEnabled, float killTimeoutValue, bool predEnabled, bool autoWallBones[6] = nullptr)
 	{
 		this->enabled = enabled;
 		this->silent = silent;
+		this->pSilent = pSilent;
 		this->friendly = friendly;
+		this->closestBone = closestBone;
+		this->hitScan = hitScan;
 		this->bone = bone;
 		this->aimkey = aimkey;
 		this->aimkeyOnly = aimkeyOnly;
@@ -183,6 +191,10 @@ struct AimbotWeapon_t
 		this->rcsAlwaysOn = rcsAlwaysOn;
 		this->rcsAmountX = rcsAmountX;
 		this->rcsAmountY = rcsAmountY;
+		this->rcsAdaptive = rcsAdaptive;
+		this->rcsAdaptiveSpeed = rcsAdaptiveSpeed;
+		this->rcsAdaptiveLimit = rcsAdaptiveLimit;
+		this->autoCockRevolver = autoCockRevolver;
 		this->autoPistolEnabled = autoPistolEnabled;
 		this->autoShootEnabled = autoShootEnabled;
 		this->autoScopeEnabled = autoScopeEnabled;
@@ -192,6 +204,11 @@ struct AimbotWeapon_t
 		this->flashCheck = flashCheck;
 		this->autoWallEnabled = autoWallEnabled;
 		this->autoWallValue = autoWallValue;
+		this->spreadLimitEnabled = spreadLimitEnabled;
+		this->spreadLimitValue = spreadLimitValue;
+		this->targetLockEnabled = targetLockEnabled;
+		this->killTimeoutEnabled = killTimeoutEnabled;
+		this->killTimeoutValue = killTimeoutValue;
 		this->autoSlow = autoSlow;
 		this->predEnabled = predEnabled;
 		this->autoSlowMinDamage = autoSlowMinDamage;
@@ -214,7 +231,10 @@ struct AimbotWeapon_t
 
 		return this->enabled == another.enabled &&
 			this->silent == another.silent &&
+			this->pSilent == another.pSilent &&
 			this->friendly == another.friendly &&
+			this->closestBone == another.closestBone &&
+			this->hitScan == another.hitScan &&
 			this->bone == another.bone &&
 			this->aimkey == another.aimkey &&
 			this->aimkeyOnly == another.aimkeyOnly &&
@@ -233,6 +253,10 @@ struct AimbotWeapon_t
 			this->rcsAlwaysOn == another.rcsAlwaysOn &&
 			this->rcsAmountX == another.rcsAmountX &&
 			this->rcsAmountY == another.rcsAmountY &&
+			this->rcsAdaptive == another.rcsAdaptive &&
+			this->rcsAdaptiveSpeed == another.rcsAdaptiveSpeed &&
+			this->rcsAdaptiveLimit == another.rcsAdaptiveLimit &&
+			this->autoCockRevolver == another.autoCockRevolver &&
 			this->autoPistolEnabled == another.autoPistolEnabled &&
 			this->autoShootEnabled == another.autoShootEnabled &&
 			this->autoScopeEnabled == another.autoScopeEnabled &&
@@ -242,6 +266,11 @@ struct AimbotWeapon_t
 			this->flashCheck == another.flashCheck &&
 			this->autoWallEnabled == another.autoWallEnabled &&
 			this->autoWallValue == another.autoWallValue &&
+			this->spreadLimitEnabled == another.spreadLimitEnabled &&
+			this->spreadLimitValue == another.spreadLimitValue &&
+			this->targetLockEnabled == another.targetLockEnabled &&
+			this->killTimeoutEnabled == another.killTimeoutEnabled &&
+			this->killTimeoutValue == another.killTimeoutValue &&
 			this->autoSlow == another.autoSlow &&
 			this->predEnabled == another.predEnabled &&
 			this->autoSlowMinDamage == another.autoSlowMinDamage &&
@@ -317,7 +346,9 @@ namespace Settings
 	{
 		extern bool enabled;
 		extern bool silent;
+		extern bool pSilent;
 		extern bool friendly;
+		extern bool closestBone;
 		extern Bone bone;
 		extern ButtonCode_t aimkey;
 		extern bool aimkeyOnly;
@@ -367,6 +398,14 @@ namespace Settings
 			extern bool always_on;
 			extern float valueX;
 			extern float valueY;
+			extern bool adaptive;
+			extern float adaptiveSpeed;
+			extern float adaptiveLimit;
+		}
+
+		namespace AutoCockRevolver
+		{
+			extern bool enabled;
 		}
 
 		namespace AutoPistol
@@ -415,6 +454,28 @@ namespace Settings
 		{
 			extern bool enabled;
 		}
+		
+		namespace SpreadLimit
+		{
+			extern bool enabled;
+			extern float value;
+		}
+
+		namespace HitScan
+		{
+			extern bool enabled;
+		}
+
+		namespace TargetLock
+		{
+			extern bool enabled;
+
+			namespace KillTimeout
+			{
+				extern bool enabled;
+				extern float value;
+			}
+		}
 
 		extern std::unordered_map<ItemDefinitionIndex, AimbotWeapon_t, Util::IntHash<ItemDefinitionIndex>> weapons;
 	}
@@ -422,6 +483,7 @@ namespace Settings
 	namespace Triggerbot
 	{
 		extern bool enabled;
+		extern bool onKey;
 		extern ButtonCode_t key;
 
 		namespace Filters
@@ -442,6 +504,14 @@ namespace Settings
 		{
 			extern bool enabled;
 			extern int value;
+		}
+
+		namespace RandomDelay
+		{
+			extern bool enabled;
+			extern int min;
+			extern int max;
+			extern int last;
 		}
 	}
 
@@ -521,6 +591,8 @@ namespace Settings
 		namespace Filters
 		{
 			extern bool legit;
+			extern bool legitModeToggle;
+			extern ButtonCode_t legitModeToggleKey;
 			extern bool visibilityCheck;
 			extern bool smokeCheck;
 			extern bool flashCheck;
@@ -548,6 +620,7 @@ namespace Settings
 			extern bool reloading;
 			extern bool flashed;
 			extern bool planting;
+			extern bool hasBomb;
 			extern bool hasDefuser;
 			extern bool defusing;
 			extern bool grabbingHostage;
@@ -784,6 +857,14 @@ namespace Settings
 		extern std::unordered_map<ItemDefinitionIndex, AttribItem_t, Util::IntHash<ItemDefinitionIndex>> skinsT;
 	}
 
+	namespace WalkBot
+	{
+		extern bool enabled;
+		extern bool forceReset;
+		extern bool autobuy;
+		extern int autobuyAt;
+	}
+
 	namespace ShowRanks
 	{
 		extern bool enabled;
@@ -816,17 +897,21 @@ namespace Settings
 		}
 	}
 
-	namespace Teleport
-	{
-		extern bool enabled;
-		extern ButtonCode_t key;
-	}
-
 	namespace FakeLag
 	{
 		extern bool enabled;
 		extern int value;
 		extern bool adaptive;
+	}
+
+	namespace Watermark
+	{
+		extern bool enabled;
+	}
+
+	namespace Watermark
+	{
+		extern bool enabled;
 	}
 
 	namespace AutoAccept
@@ -859,6 +944,7 @@ namespace Settings
 	namespace AutoDefuse
 	{
 		extern bool enabled;
+		extern bool silent;
 	}
 
 	namespace NoSmoke
