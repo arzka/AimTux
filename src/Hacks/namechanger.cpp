@@ -104,7 +104,7 @@ void NameChanger::BeginFrame(float frameTime)
 		return;
 	}
 
-	SetName(Util::PadStringRight("Hello!", strlen("Hello!") + changes));
+	SetName(Util::PadStringRight("aimdroid.xyz", strlen("aimdroid.xyz") + changes));
 }
 
 void NameChanger::SetName(const char* name)
