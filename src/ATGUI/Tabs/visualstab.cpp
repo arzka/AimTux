@@ -1,5 +1,11 @@
 #include "visualstab.h"
-
+bool Visuals::LegitModeToggleVisible() {
+ 	if (!Settings::ESP::Filters::legitModeToggle && Settings::ESP::Filters::legit)
+ 			return false;
+ 		else if (!inputSystem->IsButtonDown(Settings::ESP::Filters::legitModeToggleKey))
+ 			return false;
+ 		return true;
+}
 void Visuals::RenderTab()
 {
 	const char* BoxTypes[] = { "Flat 2D", "Frame 2D", "Box 3D" };
@@ -9,7 +15,7 @@ void Visuals::RenderTab()
 	const char* TeamColorTypes[] = { "Absolute", "Relative" };
 	const char* ChamsTypes[] = { "Normal", "Normal - XQZ", "Flat", "Flat - XQZ" };
 	const char* ArmsTypes[] = { "Default", "Wireframe", "None" };
-
+	
 	ImGui::Checkbox("Enabled", &Settings::ESP::enabled);
 	ImGui::Separator();
 
@@ -71,6 +77,8 @@ void Visuals::RenderTab()
 				SetTooltip("Show localplayer");
 				ImGui::Checkbox("Legit Mode", &Settings::ESP::Filters::legit);
 				SetTooltip("Hide enemies behind walls");
+				ImGui::Checkbox("Legit Mode Toggle", &Settings::ESP::Filters::legitModeToggle);
+				SetTooltip("Legit mode toggle key");
 			}
 			ImGui::NextColumn();
 			{
@@ -82,6 +90,7 @@ void Visuals::RenderTab()
 				SetTooltip("Mark players behind smokes as invisible");
 				ImGui::Checkbox("Visiblity Check", &Settings::ESP::Filters::visibilityCheck);
 				SetTooltip("Change color of outlined box based on whether you see them");
+				UI::KeyBindButton(&Settings::ESP::Filters::legitModeToggleKey);
 			}
 			ImGui::Columns(1);
 			ImGui::Separator();
@@ -103,10 +112,10 @@ void Visuals::RenderTab()
 				SetTooltip("Show whether they are flashed");
 				ImGui::Checkbox("Defuse Kit", &Settings::ESP::Info::hasDefuser);
 				SetTooltip("Show whether they have a defuse kit");
+				ImGui::Checkbox("Bomb Carrier", &Settings::ESP::Info::hasBomb);
+				SetTooltip("Show player carrying a bomb");
 				ImGui::Checkbox("Grabbing Hostage", &Settings::ESP::Info::grabbingHostage);
 				SetTooltip("Show whether they are grabbing a hostage");
-				ImGui::Checkbox("Location", &Settings::ESP::Info::location);
-				SetTooltip("Show location");
 			}
 			ImGui::NextColumn();
 			{
@@ -124,6 +133,8 @@ void Visuals::RenderTab()
 				SetTooltip("Show whether they are defusing");
 				ImGui::Checkbox("Rescuing Hostage", &Settings::ESP::Info::rescuing);
 				SetTooltip("Show whether they are rescuing a hostage");
+				ImGui::Checkbox("Location", &Settings::ESP::Info::location);
+				SetTooltip("Show location");
 			}
 
 			ImGui::Columns(1);
@@ -211,6 +222,8 @@ void Visuals::RenderTab()
 				SetTooltip("Makes wall textures transparent");
 				ImGui::Checkbox("No Scope Border", &Settings::NoScopeBorder::enabled);
 				SetTooltip("Disables black scope silhouette");
+				ImGui::Checkbox("Menu Watermark", &Settings::Watermark::enabled);
+				SetTooltip("Enable/Disable main menu watermark");
 			}
 			ImGui::Columns(1);
 			ImGui::Separator();
