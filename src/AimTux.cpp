@@ -7,7 +7,7 @@
 EventListener* eventListener = nullptr;
 
 /* called when the library is loading */
-int __attribute__((constructor)) AimTuxInit()
+int __attribute__((constructor)) AimdroidInit()
 {
 	Interfaces::FindInterfaces();
 	Interfaces::DumpInterfaces();
@@ -38,7 +38,7 @@ int __attribute__((constructor)) AimTuxInit()
 	Hooker::HookSwapWindow();
 	Hooker::HookPollEvent();
 
-	cvar->ConsoleColorPrintf(ColorRGBA(150, 255, 150), "AimTux was successfully injected.\n");
+	cvar->ConsoleColorPrintf(ColorRGBA(150, 255, 150), "Aimdroid was successfully injected.\n");
 
 	ModSupport::OnInit();
 
@@ -102,14 +102,14 @@ int __attribute__((constructor)) AimTuxInit()
 	return 0;
 }
 
-void __attribute__((destructor)) AimTuxShutdown()
+void __attribute__((destructor)) AimdroidShutdown()
 {
 	cvar->FindVar("cl_mouseenable")->SetValue(1);
 
 	SDL2::UnhookWindow();
 	SDL2::UnhookPollEvent();
 
-	NoSmoke::AimTuxShutdown();
+	NoSmoke::AimdroidShutdown();
 
 	clientVMT->ReleaseVMT();
 	panelVMT->ReleaseVMT();
@@ -141,5 +141,5 @@ void __attribute__((destructor)) AimTuxShutdown()
 	for (ptrdiff_t off = 0; off < 0x2; off++)
 		Util::ProtectAddr(CamThinkSvCheatsCheck + off, PROT_READ | PROT_EXEC);
 
-	cvar->ConsoleColorPrintf(ColorRGBA(255, 150, 150), "AimTux has been unloaded successfully.\n");
+	cvar->ConsoleColorPrintf(ColorRGBA(255, 150, 150), "Aimdroid has been unloaded successfully.\n");
 }
