@@ -1,19 +1,13 @@
-![banner](http://aimtux.net/images/banner.png)
+## What is Aimdroid?
 
-[![Join the chat at https://www.gitter.im/AimTuxOfficial/lobby](https://img.shields.io/gitter/room/TechnologyAdvice/Stardust.svg?style=flat-square)](https://www.gitter.im/AimTuxOfficial/lobby)
-
-Want to chat or play with other AimTux users? Join us on Gitter!
-
-## What is AimTux?
-
-AimTux is a fully featured internal hack for *CounterStrike : Global Offensive* written in C++.
+Aimdroid is a is a fork of Aimtux. Aimtux is a fully featured internal hack for *CounterStrike : Global Offensive* written in C++.
 
 
 ## Compiling
 
 **Note:** _Do NOT download or compile as the root user_
 
-#### Download the dependencies required to build AimTux:
+#### Download the dependencies required to build Aimdroid:
 
 __Ubuntu-Based / Debian:__
 ```bash
@@ -40,14 +34,14 @@ sudo emerge cmake dev-vcs/git gdb libsdl2 mesa
 ```
 
 
-#### Download AimTux:
+#### Download Aimdroid:
 
 ```bash
-git clone --recursive https://github.com/AimTuxOfficial/AimTux
+git clone --recursive https://github.com/arzka/Aimdroid
 ```
 
 ```bash
-cd AimTux
+cd Aimdroid
 ```
 
 
@@ -72,7 +66,7 @@ First of all, make sure CSGO is open, it doesn't matter whether you're in game o
 Navigate to the directory where AimTux was built if you haven't ready.
 
 ```bash
-cd AimTux
+cd Aimdroid
 ```
 
 Now, you can inject the hack with the `load` script
@@ -125,30 +119,24 @@ And it will download and compile without any effort. Once it's done, happy hacki
 Configs are stored in a hidden directory in your home folder. Specifically 
 
 ```
-~/.config/AimTux
+~/.config/Aimdroid
 ```
 
 Each `config.json` is stored in a seperately named folder (The name you see in-game, in the config window). 
 
-To add a config, create a folder inside of the `~/.config/AimTux` folder with a name of your choice, and paste the `config.json` inside of that folder.
+To add a config, create a folder inside of the `~/.config/Aimdroid` folder with a name of your choice, and paste the `config.json` inside of that folder.
 
 To see hidden folders inside your home folder, press <kbd>CTRL</kbd>+<kbd>H</kbd> when using a file manager.
 
 ## Grenade Configs
 
 ```
-~/.config/AimTuxGH
+~/.config/AimdroidGH
 ```
 
 Each `config.json` is stored in the folder named after them map name.
 
-To add a config, copy the folder containing it to `~/.config/AimTuxGH`
-## Contributing to AimTux
-
-If you wish to contribute code to this opensource project, please keep some things mind before creating a *pull request*:
- - Make sure you're using the correct [code style](https://github.com/AimTuxOfficial/AimTux/wiki/Code-Style).
- - Make sure your commits are clean and straight forward ( no junk commits )
- - Explain what you've done in your pull request.
+To add a config, copy the folder containing it to `~/.config/AimdroidGH`
 
 
 ## Screenshots
