@@ -79,12 +79,17 @@ std::unordered_map<ItemDefinitionIndex, AimbotWeapon_t, Util::IntHash<ItemDefini
 
 static const char* targets[] = { "pelvis", "", "", "spine_0", "spine_1", "spine_2", "spine_3", "neck_0", "head_0" };
 
-static void ApplyErrorToAngle(QAngle* angles, float margin)
+static QAngle ApplyErrorToAngle(QAngle* angles, float margin)
 {
 	QAngle error;
 	error.Random(-1.0f, 1.0f);
 	error *= margin;
 	angles->operator+=(error);
+	return error;
+}
+static inline void ApplyOffsetToAngle(QAngle *angles, QAngle *offset)
+{
+	angles->operator+=(*offset);
 }
 
 void GetBestBone(C_BasePlayer* player, float& bestDamage, Bone& bestBone)
@@ -93,7 +98,7 @@ void GetBestBone(C_BasePlayer* player, float& bestDamage, Bone& bestBone)
 
 	if (Entity::IsVisible(player, bestBone))
 	{
-		bestDamage = 100;
+		bestDamage = 999;
 		return;
 	}
 
@@ -103,15 +108,15 @@ void GetBestBone(C_BasePlayer* player, float& bestDamage, Bone& bestBone)
 			continue;
 
 		std::vector<const char*> hitboxList = hitboxes[it->first];
+
 		for (std::vector<const char*>::iterator it2 = hitboxList.begin(); it2 != hitboxList.end(); it2++)
 		{
 			Bone bone = Entity::GetBoneByName(player, *it2);
-			Vector vecBone = player->GetBonePosition((int) bone);
 
 			if (Settings::Aimbot::HitScan::enabled && !Entity::IsVisible(player, bone))
-				return;
+				continue;
 
-
+			Vector vecBone = player->GetBonePosition((int)bone);
 			Autowall::FireBulletData data;
 			float damage = Autowall::GetDamage(vecBone, !Settings::Aimbot::friendly, data);
 
@@ -253,10 +258,8 @@ C_BasePlayer* GetClosestPlayer(CUserCmd* cmd, bool visible, Bone& bestBone, floa
 			if (PlayerCheck(temp, localplayer, true) && Entity::IsVisible(temp, targetBone))
 					player = temp;
 			else
-			{
 				if (PlayerCheck(player, localplayer, false))
 					continue;
-			}
 		}
 		else
 		if (PlayerCheck(player, localplayer, false))
@@ -266,17 +269,23 @@ C_BasePlayer* GetClosestPlayer(CUserCmd* cmd, bool visible, Bone& bestBone, floa
 		if (!Settings::Aimbot::friendly && player->GetTeam() == localplayer->GetTeam())
 			continue;
 
-		IEngineClient::player_info_t entityInformation;
-		engine->GetPlayerInfo(i, &entityInformation);
+		if (!Aimbot::friends.empty())
+		{
+			IEngineClient::player_info_t entityInformation;
+			engine->GetPlayerInfo(i, &entityInformation);
+
+			if (std::find(Aimbot::friends.begin(), Aimbot::friends.end(), entityInformation.xuid) != Aimbot::friends.end())
+				continue;
+		}
+
 
 		if (Settings::Aimbot::TargetLock::KillTimeout::enabled && player != temp)
 		{
 			killTime = globalVars->curtime;
-			killTime += killTimeout; 
+			killTime += killTimeout;
 		}
-
-		if (std::find(Aimbot::friends.begin(), Aimbot::friends.end(), entityInformation.xuid) != Aimbot::friends.end())
-			continue;
+		else
+			killTime = 0;
 		
 		//if (Settings::Aimbot::HitScan::enabled)
 		//	HitScan(player, targetBone);
@@ -368,7 +377,7 @@ C_BasePlayer* GetClosestPlayer(CUserCmd* cmd, bool visible, Bone& bestBone, floa
 
 	savedTarget = closestEntity;
 
-	if (killTime > globalVars->curtime && Settings::Aimbot::TargetLock::KillTimeout::enabled && Settings::Aimbot::TargetLock::enabled)
+	if (killTime > globalVars->curtime && Settings::Aimbot::TargetLock::KillTimeout::enabled)
 		return NULL;
 
 	return closestEntity;
@@ -385,13 +394,12 @@ void Aimbot::RCS(QAngle& angle, C_BasePlayer* player, CUserCmd* cmd)
 
 	C_BasePlayer* localplayer = (C_BasePlayer*) entityList->GetClientEntity(engine->GetLocalPlayer());
 	QAngle CurrentPunch = *localplayer->GetAimPunchAngle();
-	bool isSilent = Settings::Aimbot::silent;
+	static bool isSilent = Settings::Aimbot::silent;
 	bool hasTarget = Settings::Aimbot::AutoAim::enabled && player && shouldAim;
 
 	if (!Settings::Aimbot::RCS::always_on && !hasTarget)
 		return;
 
-	
 	if (isSilent || hasTarget)
 	{
 		angle.x -= CurrentPunch.x * Settings::Aimbot::RCS::valueX;
@@ -670,6 +678,11 @@ void Aimbot::NoShoot(C_BaseCombatWeapon* activeWeapon, C_BasePlayer* player, CUs
 
 void Aimbot::CreateMove(CUserCmd* cmd)
 {
+	C_BasePlayer* localplayer = (C_BasePlayer*)entityList->GetClientEntity(engine->GetLocalPlayer());
+
+	if (!localplayer || !localplayer->GetAlive())
+		return;
+
 	Aimbot::UpdateValues();
 
 	if (!Settings::Aimbot::enabled)
@@ -681,12 +694,10 @@ void Aimbot::CreateMove(CUserCmd* cmd)
 	float oldSideMove = cmd->sidemove;
 
 	QAngle angle = cmd->viewangles;
+	static bool newTarget = true;
+	static QAngle lastRandom = {0,0,0};
 
 	shouldAim = Settings::Aimbot::AutoShoot::enabled;
-
-	C_BasePlayer* localplayer = (C_BasePlayer*) entityList->GetClientEntity(engine->GetLocalPlayer());
-	if (!localplayer || !localplayer->GetAlive())
-		return;
 
 	if (Settings::Aimbot::IgnoreJump::enabled && !(localplayer->GetFlags() & FL_ONGROUND))
 		return;
@@ -696,7 +707,7 @@ void Aimbot::CreateMove(CUserCmd* cmd)
 		return;
 
 	CSWeaponType weaponType = activeWeapon->GetCSWpnData()->GetWeaponType();
-	if (weaponType == CSWeaponType::WEAPONTYPE_C4 || weaponType == CSWeaponType::WEAPONTYPE_GRENADE || weaponType == CSWeaponType::WEAPONTYPE_KNIFE)
+	if (weaponType == CSWeaponType::WEAPONTYPE_C4 || weaponType == CSWeaponType::WEAPONTYPE_GRENADE)
 		return;
 
 	Bone aw_bone;
@@ -737,10 +748,35 @@ void Aimbot::CreateMove(CUserCmd* cmd)
 				angle = Math::CalcAngle(pVecTarget, eVecTarget);
 
 				if (Settings::Aimbot::ErrorMargin::enabled)
-					ApplyErrorToAngle(&angle, Settings::Aimbot::ErrorMargin::value);
+				{
+					static int lastShotFired = 0;
+					if( (localplayer->GetShotsFired() > lastShotFired) || newTarget )//get new random spot when firing a shot or when aiming at a new target
+					{
+						lastRandom = ApplyErrorToAngle(&angle, Settings::Aimbot::ErrorMargin::value);
+					}
+
+					if( lastRandom.x != 0 && lastRandom.y != 0 && lastRandom.z != 0 )
+					{
+						ApplyOffsetToAngle(&angle,&lastRandom);
+					}
+
+					lastShotFired = localplayer->GetShotsFired();
+				}
+				newTarget = false;
+			}
+			else
+			{
+				newTarget = true;
+				lastRandom = {0,0,0};
 			}
 		}
 	}
+	else
+	{
+		newTarget = true;
+		lastRandom = {0,0,0};
+	}
+
 
 	Aimbot::AimStep(player, angle, cmd);
 	Aimbot::AutoCrouch(player, cmd);
@@ -762,10 +798,13 @@ void Aimbot::CreateMove(CUserCmd* cmd)
 	Math::CorrectMovement(oldAngle, cmd, oldForward, oldSideMove);
 
 	bool bulletTime = true;									//Thanks to @kast1450
+
 	if (activeWeapon->GetNextPrimaryAttack() > globalVars->curtime)
 		bulletTime = false;
+
 	if (Settings::Aimbot::pSilent && (cmd->buttons & IN_ATTACK) && bulletTime)
 		CreateMove::sendPacket = false;
+
 	if (!Settings::Aimbot::silent)
 		engine->SetViewAngles(cmd->viewangles);
 }
