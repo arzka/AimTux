@@ -3,8 +3,8 @@ if [ ! -d ".git" ]; then
     echo "We have detected that you have downloaded aimdroid-master.zip from the GitHub website. This is the WRONG way to download Aimdroid. Please download Aimdroid with the command 'git clone --recursive https://github.com/arzka/Aimdroid.git'"
     exit
 else
-    git pull
-    git submodule update --init --recursive --remote
-    cmake .
-    make -j$(grep "^processor" /proc/cpuinfo | wc -l) "$@"
+	git pull
+	git submodule update --recursive --remote
+	git pull --recurse-submodules
+	./build
 fi
