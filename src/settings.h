@@ -865,6 +865,18 @@ namespace Settings
 		extern int autobuyAt;
 	}
 
+	namespace Watermark
+	{
+		extern bool enabled;
+		extern char* text;
+		extern ColorVar color;
+	}
+
+	namespace BombTimer
+	{
+		extern bool enabled;
+	}
+
 	namespace ShowRanks
 	{
 		extern bool enabled;
@@ -904,16 +916,6 @@ namespace Settings
 		extern bool adaptive;
 	}
 
-	namespace Watermark
-	{
-		extern bool enabled;
-	}
-
-	namespace Watermark
-	{
-		extern bool enabled;
-	}
-
 	namespace AutoAccept
 	{
 		extern bool enabled;
@@ -945,6 +947,7 @@ namespace Settings
 	{
 		extern bool enabled;
 		extern bool silent;
+		extern float time;
 	}
 
 	namespace NoSmoke
@@ -1002,6 +1005,18 @@ namespace Settings
 		extern ColorVar infoFlash;
 		extern ColorVar infoMolotov;
 		extern pstring actMapName;
+	}
+
+	namespace AutoKnife
+	{
+		extern bool enabled;
+		extern bool onKey;
+
+		namespace Filters
+		{
+			extern bool enemies;
+			extern bool allies;
+		}
 	}
 
 	void LoadDefaultsOrSave(std::string path);
