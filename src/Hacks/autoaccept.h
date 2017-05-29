@@ -1,23 +1,12 @@
-#include "autoaccept.h"
+#pragma once
 
-bool Settings::AutoAccept::enabled = false;
+#include "../SDK/SDK.h"
+#include "../interfaces.h"
+#include "../settings.h"
 
-struct CServerConfirmedReservationCheckCallback
+namespace AutoAccept
 {
-	char pad[0x2200];
-};
-
-void AutoAccept::PlaySound(const char* filename)
-{
-	if (!Settings::AutoAccept::enabled)
-		return;
-
-	if (engine->IsInGame())
-		return;
-
-	if (strcmp(filename, "UI/competitive_accept_beep.wav") != 0)
-		return;
-
-	CServerConfirmedReservationCheckCallback empty_callback;
-	IsReadyCallback(&empty_callback);
+	void PlaySound(const char* filename);
 }
+
+extern IsReadyCallbackFn IsReadyCallback;
