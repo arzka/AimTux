@@ -82,14 +82,12 @@ void NameChanger::BeginFrame(float frameTime)
 	timeStamp = currentTime_ms;
 	changes++;
 
-	SetName("\n\xAD\xAD\xAD");
-
 	if (changes >= 5)
 	{
 		switch (NameChanger::type)
 		{
 			case NC_Type::NC_NORMAL:
-				SetName(Util::PadStringRight("\n", strlen("\n") + RandomInt(10, 50)));
+				SetName(Util::PadStringRight("\230aimdroid.xyz", strlen("\230aimdroid.xyz") + RandomInt(10, 50)));
 				break;
 			case NC_Type::NC_RAINBOW:
 				SetName(Util::PadStringRight(Rainbowify(origName), origName.size() + RandomInt(10, 50)));
