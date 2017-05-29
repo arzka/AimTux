@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 2.8)
-project(Aimdroid)
+project(AimTux)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.2)
         message(FATAL_ERROR "Your GCC seems outdated. Go to https://github.com/AimTuxOfficial/AimTux/wiki/Updating-your-compiler for further instructions. If you have done so and still see this message, run 'git clean -fdx' and try again")
     endif()
 else()
-    message(FATAL_ERROR "You must have GCC >= 5.2 installed in order to compile Aimdroid. Go to https://github.com/AimTuxOfficial/AimTux/wiki/Updating-your-compiler for further instructions.")
+    message(FATAL_ERROR "You must have GCC >= 5.2 installed in order to compile AimTux. Go to https://github.com/AimTuxOfficial/AimTux/wiki/Updating-your-compiler for further instructions.")
 endif()
 
 FUNCTION (EXCLUDE_FILES_FROM_DIR_IN_LIST _InFileList _excludeDirName _verbose)
@@ -31,13 +31,21 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -Os -DNDEBUG -std=
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -static-libstdc++")
 
 if(NOT CMAKE_BUILD_TYPE)
-    message(STATUS "No build type selected, default to RelWithDebInfo")
-    set(CMAKE_BUILD_TYPE RelWithDebInfo)
+    message(STATUS "No build type selected, default to Release")
+    set(CMAKE_BUILD_TYPE Release)
 endif(NOT CMAKE_BUILD_TYPE)
 
 file(GLOB_RECURSE SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 EXCLUDE_FILES_FROM_DIR_IN_LIST("${SOURCE_FILES}" "${CMAKE_SOURCE_DIR}/src/ImGUI/examples/" FALSE)
 EXCLUDE_FILES_FROM_DIR_IN_LIST("${SOURCE_FILES}" "${CMAKE_SOURCE_DIR}/src/ImGUI/extra_fonts" FALSE)
 
+FIND_PACKAGE(Lua 5.3 REQUIRED)
+
+set(INCLUDE_DIRS ${LUA_INCLUDE_DIR})
+
+add_definitions(-DLUA)
+
+include_directories(${INCLUDE_DIRS})
+
 add_library(Aimdroid SHARED ${SOURCE_FILES})
-target_link_libraries(Aimdroid SDL2 GL dl)
+target_link_libraries(Aimdroid SDL2 GL dl ${LUA_LIBRARY})
