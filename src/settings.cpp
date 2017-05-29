@@ -409,6 +409,12 @@ void Settings::LoadDefaultsOrSave(std::string path)
 	settings["WalkBot"]["autobuy"] = Settings::WalkBot::autobuy;
  	settings["WalkBot"]["autobuyAt"] = Settings::WalkBot::autobuyAt;
 
+ 	settings["Watermark"]["enabled"] = Settings::Watermark::enabled;
+	settings["Watermark"]["text"] = Settings::Watermark::text;
+	LoadColor(settings["Watermark"]["color"], Settings::Watermark::color);
+
+	settings["BombTimer"]["enabled"] = Settings::BombTimer::enabled;
+
 	for (const auto& item: Settings::Skinchanger::skinsCT)
 	{
 		const AttribItem_t& skin = item.second;
@@ -454,8 +460,6 @@ void Settings::LoadDefaultsOrSave(std::string path)
 	settings["FakeLag"]["value"] = Settings::FakeLag::value;
 	settings["FakeLag"]["adaptive"] = Settings::FakeLag::adaptive;
 
-	settings["Watermark"]["enabled"] = Settings::Watermark::enabled;
-
 	settings["AutoAccept"]["enabled"] = Settings::AutoAccept::enabled;
 
 	settings["NoSky"]["enabled"] = Settings::NoSky::enabled;
@@ -473,6 +477,7 @@ void Settings::LoadDefaultsOrSave(std::string path)
 
 	settings["AutoDefuse"]["enabled"] = Settings::AutoDefuse::enabled;
 	settings["AutoDefuse"]["silent"] = Settings::AutoDefuse::silent;
+	settings["AutoDefuse"]["time"] = Settings::AutoDefuse::time;
 
 	settings["NoSmoke"]["enabled"] = Settings::NoSmoke::enabled;
 
@@ -504,6 +509,11 @@ void Settings::LoadDefaultsOrSave(std::string path)
 	LoadColor(settings["GrenadeHelper"]["infoSmoke"], Settings::GrenadeHelper::infoSmoke);
 	LoadColor(settings["GrenadeHelper"]["infoMolotov"], Settings::GrenadeHelper::infoMolotov);
 	LoadColor(settings["GrenadeHelper"]["infoFlash"], Settings::GrenadeHelper::infoFlash);
+
+	settings["AutoKnife"]["enabled"] = Settings::AutoKnife::enabled;
+	settings["AutoKnife"]["Filters"]["enemies"] = Settings::AutoKnife::Filters::enemies;
+	settings["AutoKnife"]["Filters"]["allies"] = Settings::AutoKnife::Filters::allies;
+	settings["AutoKnife"]["onKey"] = Settings::AutoKnife::onKey;
 
 	std::ofstream(path) << styledWriter.write(settings);
 }
@@ -899,6 +909,12 @@ void Settings::LoadConfig(std::string path)
 	GetVal(settings["WalkBot"]["autobuy"], &Settings::WalkBot::autobuy);
 	GetVal(settings["WalkBot"]["autobuyAt"], &Settings::WalkBot::autobuyAt);
 
+	GetVal(settings["Watermark"]["enabled"], &Settings::Watermark::enabled);
+	GetVal(settings["Watermark"]["text"], &Settings::Watermark::text);
+	GetVal(settings["Watermark"]["color"], &Settings::Watermark::color);
+
+	GetVal(settings["BombTimer"]["enabled"], &Settings::BombTimer::enabled);
+
 	GetVal(settings["ShowRanks"]["enabled"], &Settings::ShowRanks::enabled);
 
 	GetVal(settings["ShowSpectators"]["enabled"], &Settings::ShowSpectators::enabled);
@@ -917,8 +933,6 @@ void Settings::LoadConfig(std::string path)
 	GetVal(settings["FakeLag"]["value"], &Settings::FakeLag::value);
 	GetVal(settings["FakeLag"]["adaptive"], &Settings::FakeLag::adaptive);
 
-	GetVal(settings["Watermark"]["enabled"], &Settings::Watermark::enabled);
-
 	GetVal(settings["AutoAccept"]["enabled"], &Settings::AutoAccept::enabled);
 
 	GetVal(settings["NoSky"]["enabled"], &Settings::NoSky::enabled);
@@ -936,6 +950,7 @@ void Settings::LoadConfig(std::string path)
 
 	GetVal(settings["AutoDefuse"]["enabled"], &Settings::AutoDefuse::enabled);
 	GetVal(settings["AutoDefuse"]["silent"], &Settings::AutoDefuse::silent);
+	GetVal(settings["AutoDefuse"]["time"], &Settings::AutoDefuse::time);
 
 	GetVal(settings["NoSmoke"]["enabled"], &Settings::NoSmoke::enabled);
 
@@ -969,7 +984,10 @@ void Settings::LoadConfig(std::string path)
 	GetVal(settings["GrenadeHelper"]["infoFlash"], &Settings::GrenadeHelper::infoFlash);
 	GetVal(settings["GrenadeHelper"]["infoMolotov"], &Settings::GrenadeHelper::infoMolotov);
 
-
+	GetVal(settings["AutoKnife"]["enabled"], &Settings::AutoKnife::enabled);
+	GetVal(settings["AutoKnife"]["Filters"]["enemies"], &Settings::AutoKnife::Filters::enemies);
+	GetVal(settings["AutoKnife"]["Filters"]["allies"], &Settings::AutoKnife::Filters::allies);
+	GetVal(settings["AutoKnife"]["onKey"], &Settings::AutoKnife::onKey);
 }
 
 void Settings::LoadSettings()
