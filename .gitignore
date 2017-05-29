@@ -1,9 +1,11 @@
 *.o
 *.so
+*.swp
 .vscode/
 .vs/
 .idea/
 cmake-build-debug
+AimTux.cbp
 Aimdroid.cbp
 CMakeFiles/
 CMakeCache.txt
