@@ -10,6 +10,12 @@ if [ ! -d ".git" ]; then
     /bin/echo "We have detected that you have downloaded aimdroid-master.zip from the GitHub website. This is the WRONG way to download AimTux. Please download AimTux with the command 'git clone --recursive https://github.com/arzka/Aimdroid'"
 fi
 
+
+# pBypass paste for crash dumps being sent
+sudo rm -rf /tmp/dumps # Remove if it's there
+sudo mkdir /tmp/dumps # Make it as root
+sudo chmod 000 /tmp/dumps # No permissions
+
 #Credit: Aixxe @ aixxe.net
 if grep -q libAimdroid.so /proc/$csgo_pid/maps; then
     /bin/echo -e "\e[33mAimdroid is already injected... Aborting...\e[0m"
